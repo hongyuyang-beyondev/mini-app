@@ -24,7 +24,9 @@ export function InvoicePreview({
       {/* header */}
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-lg font-bold tracking-wide">ANY'S</div>
+          <div className="text-lg font-bold tracking-wide">
+            {header.businessName}
+          </div>
           <div className="mt-1 text-xs text-slate-500">ABN:{header.abn}</div>
         </div>
         <div className="text-right">

@@ -27,8 +27,8 @@ function todayIso(): string {
 
 export default function App() {
   const [date, setDate] = useState(todayIso());
-  const [unitPrice, setUnitPrice] = useState("550");
-  const [subtotal, setSubtotal] = useState("2330");
+  const [unitPrice, setUnitPrice] = useState("");
+  const [subtotal, setSubtotal] = useState("");
   const [description, setDescription] = useState("Maintenance Labour");
   const [header, setHeader] = useState<HeaderInfo>(DEFAULT_HEADER);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -54,7 +54,9 @@ export default function App() {
     setBusy(true);
     try {
       const blob = await generateXlsx(model, header);
-      downloadBlob(blob, `ANY\`S发票${date.replace(/-/g, "")}.xlsx`);
+      const safeName =
+        header.businessName.replace(/[\\/:*?"<>|]/g, "").trim() || "Invoice";
+      downloadBlob(blob, `${safeName}发票${date.replace(/-/g, "")}.xlsx`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to generate file");
     } finally {
@@ -70,7 +72,9 @@ export default function App() {
         </div>
         <div>
           <h1 className="text-lg font-bold leading-tight">Tax Invoice</h1>
-          <p className="text-xs text-muted-foreground">ANY'S · GST invoice</p>
+          <p className="text-xs text-muted-foreground">
+            {header.businessName || "Invoice"} · GST invoice
+          </p>
         </div>
       </header>
 
@@ -123,6 +127,15 @@ export default function App() {
               </button>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-3 pt-3">
+              <Field label="Business Name">
+                <Input
+                  value={header.businessName}
+                  onChange={(e) =>
+                    setHeaderField("businessName")(e.target.value)
+                  }
+                  placeholder="ANY'S"
+                />
+              </Field>
               <Field label="ABN">
                 <Input
                   value={header.abn}

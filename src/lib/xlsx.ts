@@ -3,6 +3,7 @@ import type { InvoiceModel } from "./invoice";
 
 // Editable header/company constants (defaults match the template).
 export interface HeaderInfo {
+  businessName: string;
   abn: string;
   billTo: string;
   accountName: string;
@@ -11,6 +12,7 @@ export interface HeaderInfo {
 }
 
 export const DEFAULT_HEADER: HeaderInfo = {
+  businessName: "ANY'S",
   abn: "93 323 804 908",
   billTo: "NEUE PROPERTY MAINTENANCE GROUP PTY LTD",
   accountName: "Xin Mou",
@@ -69,6 +71,12 @@ export async function generateXlsx(
 
   // --- sharedStrings.xml : text fields ---
   let shared = await zip.file("xl/sharedStrings.xml")!.async("string");
+  // company name -> cell A1 (the pristine template stores a placeholder "c" there)
+  shared = swap(
+    shared,
+    "<si><t>c</t></si>",
+    "<si><t>" + escapeXml(header.businessName) + "</t></si>"
+  );
   shared = swap(shared, ORIG.invoiceNumber, escapeXml(model.invoiceNumber));
   shared = swap(shared, ORIG.description, escapeXml(model.lines[0].description));
   shared = swap(shared, ORIG.abn, "ABN:" + escapeXml(header.abn));
